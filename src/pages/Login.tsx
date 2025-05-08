@@ -1,50 +1,22 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Layout from "@/components/layout/Layout";
 import { useToast } from "@/components/ui/use-toast";
+import { User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const { login, loading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // This is a placeholder for Supabase authentication
-    // Once Supabase is integrated, we'll replace this with actual authentication
-    try {
-      if (email === "demo@example.com" && password === "password") {
-        localStorage.setItem("isLoggedIn", "true");
-        toast({
-          title: "Login berhasil",
-          description: "Selamat datang kembali!",
-        });
-        navigate("/");
-      } else {
-        toast({
-          title: "Login gagal",
-          description: "Email atau kata sandi tidak valid",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast({
-        title: "Error",
-        description: "Terjadi kesalahan saat login. Silakan coba lagi.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    await login(email, password);
   };
 
   return (
@@ -117,6 +89,3 @@ const Login = () => {
 };
 
 export default Login;
-
-// Missing import
-import { User } from "lucide-react";

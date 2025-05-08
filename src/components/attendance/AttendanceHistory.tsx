@@ -6,7 +6,7 @@ import { id } from "date-fns/locale";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface AttendanceRecord {
-  id: number;
+  id: string | number;
   date: Date;
   checkIn: string;
   checkOut: string;
@@ -51,7 +51,7 @@ const AttendanceHistory = ({ attendanceData }: AttendanceHistoryProps) => {
               </TableHeader>
               <TableBody>
                 {attendanceData.map((record) => (
-                  <TableRow key={record.id}>
+                  <TableRow key={record.id.toString()}>
                     <TableCell>
                       {format(record.date, 'EEE, d MMMM yyyy', { locale: id })}
                     </TableCell>

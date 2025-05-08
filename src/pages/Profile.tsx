@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,38 +9,87 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { User } from "lucide-react";
-
-// Mock user data until Supabase integration
-const mockUser = {
-  name: "Ahmad Firdaus",
-  email: "ahmad.firdaus@example.com",
-  nip: "198505242010011002",
-  position: "Staff Administrasi",
-  department: "Tata Usaha",
-  joinDate: "01/06/2010",
-  phone: "081234567890"
-};
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 const Profile = () => {
-  const [user, setUser] = useState(mockUser);
+  const { user, loading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(mockUser);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    nip: '',
+    position: '',
+    department: '',
+    join_date: '',
+    phone: ''
+  });
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+    
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        nip: user.nip || '',
+        position: user.position || '',
+        department: user.department || '',
+        join_date: user.join_date || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [user, loading, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSave = () => {
-    // In a real app, this would update the user data in Supabase
-    setUser(formData);
-    setIsEditing(false);
-    toast({
-      title: "Profil telah diperbarui",
-      description: "Perubahan profil Anda telah berhasil disimpan.",
-    });
+  const handleSave = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Profil telah diperbarui",
+        description: "Perubahan profil Anda telah berhasil disimpan.",
+      });
+      
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat menyimpan profil",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container max-w-3xl mx-auto flex justify-center items-center min-h-[50vh]">
+          <p>Memuat...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -90,7 +140,7 @@ const Profile = () => {
                   {isEditing ? (
                     <Input id="name" name="name" value={formData.name} onChange={handleInputChange} />
                   ) : (
-                    <p className="p-2 border rounded-md bg-gray-50">{user.name}</p>
+                    <p className="p-2 border rounded-md bg-gray-50">{formData.name}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -98,7 +148,7 @@ const Profile = () => {
                   {isEditing ? (
                     <Input id="email" name="email" value={formData.email} onChange={handleInputChange} />
                   ) : (
-                    <p className="p-2 border rounded-md bg-gray-50">{user.email}</p>
+                    <p className="p-2 border rounded-md bg-gray-50">{formData.email}</p>
                   )}
                 </div>
               </div>
@@ -106,14 +156,14 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="nip">NIP</Label>
-                  <p className="p-2 border rounded-md bg-gray-50">{user.nip}</p>
+                  <p className="p-2 border rounded-md bg-gray-50">{formData.nip}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">No. Telepon</Label>
                   {isEditing ? (
                     <Input id="phone" name="phone" value={formData.phone} onChange={handleInputChange} />
                   ) : (
-                    <p className="p-2 border rounded-md bg-gray-50">{user.phone}</p>
+                    <p className="p-2 border rounded-md bg-gray-50">{formData.phone}</p>
                   )}
                 </div>
               </div>
@@ -123,17 +173,17 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="position">Jabatan</Label>
-                  <p className="p-2 border rounded-md bg-gray-50">{user.position}</p>
+                  <p className="p-2 border rounded-md bg-gray-50">{formData.position}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="department">Departemen</Label>
-                  <p className="p-2 border rounded-md bg-gray-50">{user.department}</p>
+                  <p className="p-2 border rounded-md bg-gray-50">{formData.department}</p>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="joinDate">Tanggal Bergabung</Label>
-                <p className="p-2 border rounded-md bg-gray-50">{user.joinDate}</p>
+                <Label htmlFor="join_date">Tanggal Bergabung</Label>
+                <p className="p-2 border rounded-md bg-gray-50">{formData.join_date}</p>
               </div>
             </div>
           </CardContent>
