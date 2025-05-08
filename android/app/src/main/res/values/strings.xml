@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">kehadiran-lumbang-android-fix</string>
+    <string name="title_activity_main">kehadiran-lumbang-android-fix</string>
+    <string name="package_name">com.lumbang.presensi</string>
+    <string name="custom_url_scheme">com.lumbang.presensi</string>
+</resources>
