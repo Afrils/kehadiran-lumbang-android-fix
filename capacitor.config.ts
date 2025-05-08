@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.6b702a5b9c0f4efbb05e1f7342395f87',
+  appId: 'com.lumbang.presensi',
   appName: 'kehadiran-lumbang-android-fix',
   webDir: 'dist',
   server: {
